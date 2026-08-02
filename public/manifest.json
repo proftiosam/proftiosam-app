@@ -1,0 +1,20 @@
+{
+  "name": "Prof. Tio Sam",
+  "short_name": "Tio Sam",
+  "description": "Marque seu inglês do dia.",
+  "start_url": "/hoje",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6f1",
+  "theme_color": "#0e7a5f",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/icone.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

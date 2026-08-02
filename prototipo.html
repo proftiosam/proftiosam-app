@@ -1,0 +1,1580 @@
+<title>Protótipo — app de hábitos de inglês</title>
+
+<style>
+  :root {
+    --stage:      #E4E9E2;
+    --paper:      #F4F6F1;
+    --surface:    #FFFFFF;
+    --surface-2:  #EAEEE7;
+    --ink:        #16241F;
+    --ink-2:      #46564F;
+    --ink-3:      #7E8C85;
+    --line:       #D9E0D8;
+    --accent:     #0E7A5F;
+    --accent-ink: #FFFFFF;
+    --accent-soft:#DDEDE6;
+    --flame:      #C9551F;
+    --flame-soft: #F8E5DA;
+    --gold:       #96721A;
+    --shadow:     0 1px 2px rgba(22,36,31,.06), 0 8px 24px rgba(22,36,31,.07);
+
+    --f-display: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    --f-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    --f-data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --stage:      #080C0A;
+      --paper:      #0E1512;
+      --surface:    #16211D;
+      --surface-2:  #1E2C27;
+      --ink:        #E8EFE9;
+      --ink-2:      #9DB0A7;
+      --ink-3:      #71847B;
+      --line:       #27352F;
+      --accent:     #45C79B;
+      --accent-ink: #06231A;
+      --accent-soft:#17322A;
+      --flame:      #F0854A;
+      --flame-soft: #33211A;
+      --gold:       #D8B45A;
+      --shadow:     0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --stage:#080C0A; --paper:#0E1512; --surface:#16211D; --surface-2:#1E2C27;
+    --ink:#E8EFE9; --ink-2:#9DB0A7; --ink-3:#71847B; --line:#27352F;
+    --accent:#45C79B; --accent-ink:#06231A; --accent-soft:#17322A;
+    --flame:#F0854A; --flame-soft:#33211A; --gold:#D8B45A;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --stage:#E4E9E2; --paper:#F4F6F1; --surface:#FFFFFF; --surface-2:#EAEEE7;
+    --ink:#16241F; --ink-2:#46564F; --ink-3:#7E8C85; --line:#D9E0D8;
+    --accent:#0E7A5F; --accent-ink:#FFFFFF; --accent-soft:#DDEDE6;
+    --flame:#C9551F; --flame-soft:#F8E5DA; --gold:#96721A;
+    --shadow:0 1px 2px rgba(22,36,31,.06), 0 8px 24px rgba(22,36,31,.07);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--stage);
+    color: var(--ink);
+    font-family: var(--f-ui);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button, input, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  /* ---------- chrome do protótipo ---------- */
+
+  .stage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 24px 16px 40px;
+  }
+
+  .proto {
+    width: 100%;
+    max-width: 430px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .proto-kicker {
+    font-family: var(--f-data);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .proto-title {
+    font-family: var(--f-display);
+    font-size: 24px;
+    line-height: 1.15;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .seg {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+
+  .seg button {
+    flex: 1;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--ink-2);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .seg button[aria-selected="true"] {
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+  }
+
+  .proto-note {
+    max-width: 430px;
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink-3);
+  }
+
+  /* ---------- aparelho ---------- */
+
+  .device {
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+    height: min(820px, calc(100vh - 210px));
+    min-height: 560px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .appbar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .appbar-title {
+    font-family: var(--f-display);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -.01em;
+  }
+
+  .appbar-sub {
+    font-family: var(--f-data);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 2px 0 0;
+  }
+
+  .chip-user {
+    flex: none;
+    font-family: var(--f-data);
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .screen {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 16px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tabbar {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .tabbar button {
+    position: relative;
+    padding: 13px 4px calc(13px + env(safe-area-inset-bottom, 0px));
+    border: 0;
+    background: transparent;
+    color: var(--ink-3);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .tabbar button[aria-current="true"] { color: var(--ink); font-weight: 650; }
+
+  .tabbar button[aria-current="true"]::before {
+    content: "";
+    position: absolute;
+    inset: -1px 22% auto;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  /* ---------- blocos comuns ---------- */
+
+  .sec-label {
+    font-family: var(--f-data);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .group { display: flex; flex-direction: column; gap: 9px; }
+
+  .num {
+    font-family: var(--f-data);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .muted { color: var(--ink-2); }
+  .tiny { font-size: 12.5px; line-height: 1.5; }
+
+  .bar {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+
+  /* ---------- streak ---------- */
+
+  .streak {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 15px;
+  }
+
+  .flame {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: var(--flame-soft);
+    color: var(--flame);
+  }
+
+  .streak-n {
+    font-family: var(--f-data);
+    font-variant-numeric: tabular-nums;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+
+  .shield {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .shield b { color: var(--ink); font-family: var(--f-data); }
+
+  /* ---------- grade de atividades ---------- */
+
+  .acts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+
+  .act {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding: 13px 13px 11px;
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    cursor: pointer;
+    transition: border-color .15s, transform .1s, background .15s;
+  }
+
+  .act:hover:not(:disabled) { border-color: var(--accent); }
+  .act:active:not(:disabled) { transform: scale(.985); }
+  .act:disabled { opacity: .42; cursor: not-allowed; }
+
+  .act-pts {
+    font-family: var(--f-data);
+    font-variant-numeric: tabular-nums;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: -.02em;
+  }
+  .act-pts span { font-size: 10px; font-weight: 600; letter-spacing: .08em; margin-left: 3px; color: var(--ink-3); }
+  .act-name { font-size: 13.5px; font-weight: 550; line-height: 1.25; }
+
+  .done-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    background: var(--accent-soft);
+    border-radius: 11px;
+    font-size: 13px;
+  }
+  .done-row .num { color: var(--accent); }
+
+  /* ---------- feed ---------- */
+
+  .post {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 13px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .post-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .nick { font-weight: 650; font-size: 14px; }
+
+  .tag {
+    font-family: var(--f-data);
+    font-size: 10.5px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    color: var(--ink-2);
+  }
+
+  .when { margin-left: auto; font-size: 11.5px; color: var(--ink-3); font-family: var(--f-data); }
+
+  .post-note {
+    font-family: var(--f-display);
+    font-size: 15.5px;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .reacts { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .react {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .react:hover { border-color: var(--accent); }
+  .react b { font-family: var(--f-data); font-size: 11.5px; color: var(--ink-2); }
+  .react[data-on="1"] { background: var(--accent-soft); border-color: var(--accent); }
+  .react[data-on="1"] b { color: var(--accent); }
+
+  .prof-note {
+    display: flex;
+    gap: 9px;
+    padding: 10px 11px;
+    background: var(--accent-soft);
+    border-radius: 11px;
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+  .prof-note strong { color: var(--accent); white-space: nowrap; }
+
+  .post[data-prof="1"] {
+    border-left: 3px solid var(--accent);
+    background: linear-gradient(90deg, var(--accent-soft) 0%, var(--surface) 40%);
+  }
+
+  .prof-badge {
+    font-family: var(--f-data);
+    font-size: 9.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 5px;
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .prof-react {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .react-also {
+    margin-left: auto;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .nudge {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 13px;
+    border-radius: 13px;
+    background: var(--flame-soft);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--flame);
+  }
+
+  .qrow { display: flex; gap: 7px; }
+
+  .qreact {
+    flex: 1;
+    padding: 12px 0;
+    font-size: 21px;
+    line-height: 1;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: transparent;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .qreact:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .qreact:active { transform: scale(.94); }
+
+  .link-skip {
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink-3);
+    font-size: 12.5px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .link-skip:hover { color: var(--ink-2); }
+
+  .empty {
+    text-align: center;
+    padding: 30px 16px;
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    color: var(--ink-3);
+  }
+
+  .say {
+    display: flex;
+    gap: 7px;
+  }
+  .say input {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 11px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--paper);
+    font-size: 13.5px;
+  }
+  .say input::placeholder { color: var(--ink-3); }
+
+  .btn {
+    padding: 9px 14px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn:hover { filter: brightness(1.07); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+  }
+  .btn-ghost:hover { filter: none; border-color: var(--accent); color: var(--ink); }
+
+  /* ---------- ranking ---------- */
+
+  .rank {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 13px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .rank[data-me="1"] { border-color: var(--accent); background: var(--accent-soft); }
+
+  .pos {
+    flex: none;
+    width: 26px;
+    font-family: var(--f-data);
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink-3);
+  }
+  .rank[data-pos="1"] .pos { color: var(--gold); }
+
+  .rank-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .rank-pts { flex: none; text-align: right; }
+  .rank-pts .num { font-size: 16px; }
+  .rank-pts small { display: block; font-size: 10.5px; color: var(--ink-3); font-family: var(--f-data); letter-spacing: .06em; }
+
+  /* ---------- badges ---------- */
+
+  .badges { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+  .badge {
+    padding: 11px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .badge[data-locked="1"] { opacity: .5; border-style: dashed; background: transparent; }
+  .badge-n { font-size: 13px; font-weight: 650; line-height: 1.2; }
+  .badge-d { font-size: 11.5px; color: var(--ink-3); line-height: 1.35; }
+
+  /* ---------- semana em pontinhos ---------- */
+
+  .week { display: flex; gap: 3px; }
+  .week i {
+    width: 9px; height: 9px;
+    border-radius: 3px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+  }
+  .week i[data-on="1"] { background: var(--accent); border-color: var(--accent); }
+  .week i[data-on="2"] { background: transparent; border-style: dashed; opacity: .6; }
+
+  /* ---------- alertas do professor ---------- */
+
+  .alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 13px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-left: 3px solid var(--flame);
+  }
+  .alert-days {
+    font-family: var(--f-data);
+    font-variant-numeric: tabular-nums;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--flame);
+    line-height: 1;
+    flex: none;
+    width: 34px;
+  }
+  .alert-days span { display: block; font-size: 9.5px; letter-spacing: .1em; color: var(--ink-3); font-weight: 600; margin-top: 3px; }
+  .alert-mid { flex: 1; min-width: 0; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .stat {
+    padding: 12px 13px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .stat .num { font-size: 24px; letter-spacing: -.02em; display: block; line-height: 1.1; }
+  .stat small { font-size: 11.5px; color: var(--ink-3); line-height: 1.3; display: block; margin-top: 3px; }
+
+  .srow {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 12px;
+    border-radius: 11px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .srow-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+  .field input, .field textarea {
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+    font-size: 14px;
+    resize: vertical;
+  }
+
+  .code {
+    font-family: var(--f-data);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    color: var(--accent);
+  }
+
+  /* ---------- folha de check-in ---------- */
+
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(8,14,11,.42);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+  }
+  .scrim[data-open="1"] { opacity: 1; pointer-events: auto; }
+
+  .sheet {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    border-radius: 20px 20px 0 0;
+    padding: 18px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    transform: translateY(102%);
+    transition: transform .24s cubic-bezier(.32,.72,0,1);
+  }
+  .sheet[data-open="1"] { transform: translateY(0); }
+
+  .sheet-head { display: flex; align-items: center; gap: 11px; }
+  .sheet-pts {
+    font-family: var(--f-data);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 5px 10px;
+    border-radius: 8px;
+  }
+  .sheet h3 { font-family: var(--f-display); font-size: 19px; margin: 0; font-weight: 600; }
+
+  .toast {
+    position: absolute;
+    left: 16px; right: 16px; bottom: 78px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 13.5px;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toast[data-open="1"] { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 480px) {
+    .stage { padding: 14px 0 0; gap: 12px; }
+    .proto, .proto-note { padding: 0 14px; }
+    .device {
+      max-width: none;
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      height: auto;
+      flex: 1;
+      min-height: 78vh;
+    }
+    .proto-note { padding-bottom: 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  }
+</style>
+
+<div class="stage">
+  <header class="proto">
+    <p class="proto-kicker">Protótipo navegável · dados fictícios</p>
+    <h1 class="proto-title">App de hábitos de inglês</h1>
+    <div class="seg" id="roles">
+      <button type="button" data-role="aluno" aria-selected="true">Visão do aluno</button>
+      <button type="button" data-role="prof" aria-selected="false">Visão do professor</button>
+    </div>
+  </header>
+
+  <div class="device">
+    <div class="appbar">
+      <div>
+        <h2 class="appbar-title" id="bar-title">Temporada de Agosto</h2>
+        <p class="appbar-sub" id="bar-sub">Dia 12 de 30</p>
+      </div>
+      <span class="chip-user" id="bar-user">raposa</span>
+    </div>
+
+    <div class="screen" id="screen"></div>
+
+    <nav class="tabbar" id="tabbar"></nav>
+
+    <div class="scrim" id="scrim"></div>
+    <div class="sheet" id="sheet">
+      <div class="sheet-head">
+        <span class="sheet-pts" id="sheet-pts">+6</span>
+        <h3 id="sheet-title">Estudo sozinho</h3>
+      </div>
+      <div class="field">
+        <label for="sheet-note">O que você fez? Uma linha basta.</label>
+        <input id="sheet-note" type="text" maxlength="90" placeholder="ex: 30 min de Anki, deck de phrasal verbs" />
+      </div>
+      <div class="say">
+        <button class="btn btn-ghost" type="button" id="sheet-cancel">Cancelar</button>
+        <button class="btn" type="button" id="sheet-ok" style="flex:1">Marcar</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <p class="proto-note">
+    Clique em tudo. As atividades marcam de verdade, o feed atualiza, as reações funcionam
+    e o painel do professor responde ao que você faz na visão do aluno. Nada é salvo —
+    recarregar a página volta ao estado inicial.
+  </p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var ACTS = [
+    { id: "aula",    name: "English Class",     pts: 10 },
+    { id: "fala",    name: "Falar / conversar", pts: 8  },
+    { id: "estudo",  name: "Estudo sozinho",    pts: 6  },
+    { id: "leitura", name: "Leitura",           pts: 4  },
+    { id: "jogo",    name: "Jogo em inglês",    pts: 3  },
+    { id: "podcast", name: "Podcast",           pts: 3  },
+    { id: "serie",   name: "Série / filme",     pts: 3  },
+    { id: "musica",  name: "Música",            pts: 2  }
+  ];
+
+  var REACTS = ["🔥", "👏", "💪", "🎯"];
+
+  var S = {
+    role: "aluno",
+    tab: "hoje",
+    me: "raposa",
+    season: { name: "Semana de teste", day: 4, total: 7, meta: 5, premio: "Troféu no perfil + destaque no Hall da Semana" },
+    weekly: "Ver um filme em inglês",
+    codigo: "ING-TESTE",
+    cap: 3,
+    hoje: [{ act: "estudo", note: "30 min de Anki, deck de phrasal verbs" }],
+    meDias: 4,
+    meStreak: 4,
+    escudos: 1,
+    escudosMax: 1,
+    lembrete: true,
+    alunos: [
+      { nick: "tocha",   real: "Rafael M.",     pts: 54, streak: 4, dias: 4, sumido: 0, week: [1,1,1,1,2,2,2] },
+      { nick: "raposa",  real: "Ana Beatriz P.",pts: 47, streak: 4, dias: 4, sumido: 0, week: [1,1,1,1,2,2,2] },
+      { nick: "jow",     real: "João Pedro S.", pts: 41, streak: 2, dias: 3, sumido: 0, week: [1,0,1,1,2,2,2] },
+      { nick: "luna",    real: "Luana S.",      pts: 36, streak: 0, dias: 3, sumido: 1, week: [1,1,1,0,2,2,2] },
+      { nick: "kchan",   real: "Karina C.",     pts: 26, streak: 2, dias: 3, sumido: 0, week: [1,0,1,1,2,2,2] },
+      { nick: "mike_br", real: "Michel A.",     pts: 22, streak: 0, dias: 2, sumido: 2, week: [1,1,0,0,2,2,2] },
+      { nick: "dedé",    real: "André L.",      pts: 11, streak: 0, dias: 1, sumido: 3, week: [1,0,0,0,2,2,2] },
+      { nick: "vini",    real: "Vinícius R.",   pts: 0,  streak: 0, dias: 0, sumido: 4, week: [0,0,0,0,2,2,2] }
+    ],
+    feed: [
+      { id: 1, nick: "tocha",   act: "fala",    note: "Gravei 3 minutos falando sobre meu fim de semana.", when: "há 40min",
+        r: { "🔥": 2, "🎯": 1 }, mine: {}, prof: "Isso! Manda o áudio no privado que eu te devolvo correção.",
+        profReact: "🎯", seen: true },
+      { id: 2, nick: "Prof. Sam", isProf: true, act: "leitura", note: "Terminei The Dispossessed, da Ursula Le Guin. Denso, mas o inglês é limpo.", when: "há 1h",
+        r: { "👏": 2 }, mine: {}, prof: null, profReact: null, seen: true },
+      { id: 3, nick: "luna",    act: "musica",  note: "Playlist do Hozier no caminho do trabalho.", when: "há 2h",
+        r: { "🔥": 1 }, mine: {}, prof: null, profReact: null, seen: false },
+      { id: 4, nick: "raposa",  act: "estudo",  note: "30 min de Anki, deck de phrasal verbs.", when: "há 3h",
+        r: { "👏": 2, "💪": 1 }, mine: { "👏": true }, prof: null, profReact: null, seen: false },
+      { id: 5, nick: "jow",     act: "serie",   note: "The Office S2E4, legenda em inglês. Peguei umas 6 gírias novas.", when: "há 5h",
+        r: { "🔥": 3 }, mine: {}, prof: "Anota as 6 e traz na aula de quinta.", profReact: "🔥", seen: true },
+      { id: 6, nick: "kchan",   act: "leitura", note: "Duas páginas do Percy Jackson antes de dormir.", when: "ontem",
+        r: { "👏": 1 }, mine: {}, prof: null, profReact: null, seen: false },
+      { id: 7, nick: "Prof. Sam", isProf: true, act: "podcast", note: "Episódio novo do 99% Invisible no trânsito. 20 min bem gastos.", when: "ontem",
+        r: {}, mine: {}, prof: null, profReact: null, seen: true },
+      { id: 8, nick: "mike_br", act: "jogo",    note: "Stardew Valley em inglês, quase 1h.", when: "ontem",
+        r: {}, mine: {}, prof: null, profReact: null, seen: false }
+    ]
+  };
+
+  var nextId = 9;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function act(id) {
+    for (var i = 0; i < ACTS.length; i++) if (ACTS[i].id === id) return ACTS[i];
+    return { name: id, pts: 0 };
+  }
+
+  function aluno(nick) {
+    for (var i = 0; i < S.alunos.length; i++) if (S.alunos[i].nick === nick) return S.alunos[i];
+    return null;
+  }
+
+  function ordenados() {
+    return S.alunos.slice().sort(function (a, b) { return b.pts - a.pts; });
+  }
+
+  /* dias de check-in que o aluno precisaria ter agora pra fechar a temporada na meta */
+  function ritmoExigido() {
+    return Math.round((S.season.day * S.season.meta) / S.season.total);
+  }
+
+  function noRitmo() {
+    var alvo = ritmoExigido();
+    return S.alunos.filter(function (s) { return s.dias >= alvo; });
+  }
+
+  /* numa temporada curta, sumir 2 dias já é quase um terço dela */
+  function sumidos() {
+    var limite = S.season.total <= 10 ? 2 : 3;
+    return S.alunos.filter(function (s) { return s.sumido >= limite; })
+                   .sort(function (a, b) { return b.sumido - a.sumido; });
+  }
+
+  function weekDots(w) {
+    var h = '<div class="week" aria-label="dias da temporada">';
+    for (var i = 0; i < w.length; i++) h += '<i data-on="' + w[i] + '"></i>';
+    return h + "</div>";
+  }
+
+  var FLAME =
+    '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+    '<path d="M12 2.5c.6 3.2-1.3 4.4-2.7 5.9-1.5 1.6-2.6 3-2.6 5.4a5.3 5.3 0 0 0 10.6 0c0-2-.8-3.3-1.9-4.6-.4 1-1 1.6-1.8 1.9.6-2.9-.4-6.2-1.6-8.6Z" fill="currentColor"/>' +
+    "</svg>";
+
+  /* ---------------- telas do aluno ---------------- */
+
+  function telaHoje() {
+    var usados = S.hoje.length;
+    var cheio = usados >= S.cap;
+    var h = "";
+
+    h +=
+      '<div class="streak">' +
+        '<div class="flame">' + FLAME + "</div>" +
+        "<div>" +
+          '<div class="streak-n">' + S.meStreak + " dias</div>" +
+          '<div class="tiny muted" style="margin-top:3px">de sequência sem falhar</div>' +
+        "</div>" +
+      "</div>";
+
+    h +=
+      '<div class="card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">' +
+          '<p class="sec-label">Meta da temporada</p>' +
+          '<span class="num tiny">' + S.meDias + " / " + S.season.meta + " dias</span>" +
+        "</div>" +
+        '<div class="bar"><i style="width:' + Math.min(100, (S.meDias / S.season.meta) * 100) + '%"></i></div>' +
+        '<p class="tiny muted" style="margin:0">Bateu ' + S.season.meta + " dias em " + S.season.total +
+          ", você entra no Hall da Semana. Não importa em que lugar do ranking.</p>" +
+        '<p class="shield" style="margin:0">Protetores de sequência: <b>' + S.escudos + " de " + S.escudosMax + "</b> ainda disponível</p>" +
+      "</div>";
+
+    h += '<div class="group">';
+    h += '<p class="sec-label">Marcar hoje &nbsp;·&nbsp; ' + usados + " de " + S.cap + " check-ins usados</p>";
+
+    if (S.hoje.length) {
+      for (var i = 0; i < S.hoje.length; i++) {
+        var a = act(S.hoje[i].act);
+        h += '<div class="done-row"><span class="num">+' + a.pts + "</span><span>" + esc(a.name) + "</span></div>";
+      }
+    }
+
+    h += '<div class="acts">';
+    for (var j = 0; j < ACTS.length; j++) {
+      h +=
+        '<button class="act" type="button" data-check="' + ACTS[j].id + '"' + (cheio ? " disabled" : "") + ">" +
+          '<span class="act-pts">' + ACTS[j].pts + "<span>PTS</span></span>" +
+          '<span class="act-name">' + esc(ACTS[j].name) + "</span>" +
+        "</button>";
+    }
+    h += "</div>";
+
+    if (cheio) {
+      h += '<p class="tiny muted" style="margin:0">Teto diário atingido. Volte amanhã — o teto existe pra você escolher o que vale a pena, não pra acumular ponto fácil.</p>';
+    }
+    h += "</div>";
+
+    h +=
+      '<div class="card">' +
+        '<p class="sec-label">Desafio da semana</p>' +
+        '<p class="post-note">' + esc(S.weekly) + "</p>" +
+        '<p class="tiny muted" style="margin:0">Proposto pelo Prof. Sam · termina domingo</p>' +
+      "</div>";
+
+    return h;
+  }
+
+  function postHTML(p) {
+    var a = act(p.act);
+    var h = '<article class="post" data-post="' + p.id + '" data-prof="' + (p.isProf ? 1 : 0) + '">';
+
+    h += '<div class="post-head">';
+    if (p.isProf) {
+      h += '<span class="nick">Prof. Sam</span><span class="prof-badge">professor</span>';
+    } else {
+      h += '<span class="nick">' + esc(p.nick) + (p.nick === S.me ? " · você" : "") + "</span>";
+    }
+    h +=
+        '<span class="tag">' + esc(a.name) + " · " + a.pts + "</span>" +
+        '<span class="when">' + esc(p.when) + "</span>" +
+      "</div>";
+
+    h += '<p class="post-note">' + esc(p.note) + "</p>";
+
+    if (p.profReact && !p.isProf) {
+      h += '<div class="prof-react">' + p.profReact + " Prof. Sam reagiu</div>";
+    }
+
+    h += '<div class="reacts">';
+    for (var i = 0; i < REACTS.length; i++) {
+      var e = REACTS[i];
+      var n = p.r[e] || 0;
+      if (!n) continue;
+      h += '<button class="react" type="button" data-react="' + p.id + '" data-emoji="' + e + '" data-on="' +
+           (p.mine[e] ? 1 : 0) + '">' + e + " <b>" + n + "</b></button>";
+    }
+    h += '<button class="react" type="button" data-react="' + p.id + '" data-emoji="🔥" data-on="0">🔥 +</button>';
+
+    if (p.nick !== S.me && !p.isProf) {
+      h += '<button class="react react-also" type="button" data-also="' + p.id + '">Fazer também</button>';
+    } else if (p.isProf) {
+      h += '<button class="react react-also" type="button" data-also="' + p.id + '">Fazer também</button>';
+    }
+    h += "</div>";
+
+    if (p.prof) {
+      h += '<div class="prof-note"><strong>Prof. Sam</strong><span>' + esc(p.prof) + "</span></div>";
+    }
+
+    return h + "</article>";
+  }
+
+  function checouHoje() { return S.hoje.length > 0; }
+
+  function telaIdeias() {
+    var h = "";
+
+    if (!checouHoje()) {
+      h +=
+        '<div class="nudge">' +
+          '<strong style="font-size:14px">Você ainda não marcou nada hoje.</strong>' +
+          '<span class="tiny">Rouba uma ideia daqui de baixo — leva 10 minutos e a sequência continua.</span>' +
+        "</div>";
+    }
+
+    h +=
+      '<p class="sec-label">O que a turma anda fazendo</p>' +
+      '<p class="tiny muted" style="margin:-6px 0 0">Não precisa conhecer ninguém pra roubar uma boa ideia. ' +
+      "Toque em <strong>Fazer também</strong> e o check-in já vem preenchido.</p>";
+
+    h += '<div class="group">';
+    for (var i = 0; i < S.feed.length; i++) h += postHTML(S.feed[i]);
+    return h + "</div>";
+  }
+
+  function fila() {
+    return S.feed.filter(function (p) { return !p.seen && !p.isProf; });
+  }
+
+  function telaFila() {
+    var f = fila();
+    var h = "";
+
+    if (!f.length) {
+      h +=
+        '<div class="empty">' +
+          '<div style="font-family:var(--f-display);font-size:19px;color:var(--ink);margin-bottom:6px">Fila zerada</div>' +
+          '<div class="tiny">Todo mundo que marcou hoje já ouviu de você. Volte amanhã.</div>' +
+        "</div>";
+    } else {
+      h += '<p class="sec-label">' + f.length + " esperando você</p>";
+      h += '<p class="tiny muted" style="margin:-6px 0 0">Uma emoji já resolve. O aluno vê que foi você que reagiu — ' +
+           "é a única validação real que ele tem aqui dentro.</p>";
+      h += '<div class="group">';
+      for (var i = 0; i < f.length; i++) {
+        var p = f[i];
+        var a = act(p.act);
+        h +=
+          '<article class="post">' +
+            '<div class="post-head">' +
+              '<span class="nick">' + esc(p.nick) + "</span>" +
+              '<span class="tag">' + esc(a.name) + " · " + a.pts + "</span>" +
+              '<span class="when">' + esc(p.when) + "</span>" +
+            "</div>" +
+            '<p class="post-note">' + esc(p.note) + "</p>" +
+            '<div class="qrow">';
+        for (var j = 0; j < REACTS.length; j++) {
+          h += '<button class="qreact" type="button" data-q="' + p.id + '" data-emoji="' + REACTS[j] + '">' + REACTS[j] + "</button>";
+        }
+        h += "</div>" +
+            '<div class="say">' +
+              '<input type="text" maxlength="120" placeholder="Ou escreva uma linha…" data-say="' + p.id + '" />' +
+              '<button class="btn" type="button" data-send="' + p.id + '">Enviar</button>' +
+            "</div>" +
+            '<button class="link-skip" type="button" data-skip="' + p.id + '">Pular este</button>' +
+          "</article>";
+      }
+      h += "</div>";
+    }
+
+    h += '<div class="group"><p class="sec-label">Você também marca</p>';
+    h += '<div class="acts">';
+    for (var k = 0; k < ACTS.length; k++) {
+      h +=
+        '<button class="act" type="button" data-profcheck="' + ACTS[k].id + '">' +
+          '<span class="act-pts" style="color:var(--ink-3)">—</span>' +
+          '<span class="act-name">' + esc(ACTS[k].name) + "</span>" +
+        "</button>";
+    }
+    h += "</div>";
+    h += '<p class="tiny muted" style="margin:0">Aparece no feed dos alunos, fora do ranking. ' +
+         "Feed de professor que só cobra e nunca aparece é o que faz o aluno parar de abrir.</p></div>";
+
+    return h;
+  }
+
+  function telaRanking() {
+    var lista = ordenados();
+    var h = '<p class="sec-label">Classificação · dia ' + S.season.day + " de " + S.season.total + "</p>";
+    h += '<div class="group">';
+    for (var i = 0; i < lista.length; i++) {
+      var s = lista[i];
+      h +=
+        '<div class="rank" data-pos="' + (i + 1) + '" data-me="' + (s.nick === S.me ? 1 : 0) + '">' +
+          '<span class="pos">' + (i + 1) + "</span>" +
+          '<div class="rank-mid">' +
+            '<span class="nick">' + esc(s.nick) + (s.nick === S.me ? " · você" : "") + "</span>" +
+            weekDots(s.week) +
+          "</div>" +
+          '<div class="rank-pts"><span class="num">' + s.pts + "</span><small>PONTOS</small></div>" +
+        "</div>";
+    }
+    h += "</div>";
+
+    var dentro = noRitmo();
+    h +=
+      '<div class="card">' +
+        '<p class="sec-label">Hall da Semana</p>' +
+        '<p class="tiny muted" style="margin:0">Quem chegar a ' + S.season.meta + " dias com check-in entra aqui. " +
+          "Hoje <span class=\"num\">" + dentro.length + "</span> pessoas estão no ritmo.</p>" +
+        '<p class="tiny" style="margin:0"><strong>Prêmio:</strong> ' + esc(S.season.premio) + "</p>" +
+      "</div>";
+
+    return h;
+  }
+
+  function telaPerfil() {
+    var conq = [
+      { n: "Primeiro check-in", d: "você começou", ok: 1 },
+      { n: "Sequência de 3", d: "3 dias seguidos", ok: 1 },
+      { n: "Hall da Semana", d: "falta " + Math.max(0, S.season.meta - S.meDias) + " dia", ok: S.meDias >= S.season.meta ? 1 : 0 },
+      { n: "Semana cheia", d: "os 7 dias sem falhar · faltam " + Math.max(0, S.season.total - S.meDias), ok: 0 },
+      { n: "Poliglota", d: "4 tipos diferentes · você tem 3", ok: 0 },
+      { n: "Falante", d: "3 check-ins de fala · você tem 1", ok: 0 }
+    ];
+
+    var mix = [
+      { n: "Estudo sozinho", v: 32 }, { n: "Música", v: 20 }, { n: "Série / filme", v: 16 },
+      { n: "Falar / conversar", v: 12 }, { n: "Leitura", v: 10 }, { n: "Aula comigo", v: 6 }, { n: "Podcast", v: 4 }
+    ];
+
+    var eu = aluno(S.me);
+    var h = "";
+
+    h +=
+      '<div class="stats">' +
+        '<div class="stat"><span class="num">' + eu.pts + "</span><small>pontos na temporada</small></div>" +
+        '<div class="stat"><span class="num">' + S.meDias + "</span><small>dias com check-in</small></div>" +
+        '<div class="stat"><span class="num">' + S.meStreak + "</span><small>sequência atual</small></div>" +
+        '<div class="stat"><span class="num">' + S.escudos + "</span><small>" +
+          (S.escudos === 1 ? "protetor restante" : "protetores restantes") + "</small></div>" +
+      "</div>";
+
+    h += '<div class="group"><p class="sec-label">No que você gasta seu inglês</p><div class="card">';
+    for (var i = 0; i < mix.length; i++) {
+      h +=
+        '<div style="display:flex;flex-direction:column;gap:5px">' +
+          '<div style="display:flex;justify-content:space-between;gap:10px" class="tiny">' +
+            "<span>" + esc(mix[i].n) + '</span><span class="num muted">' + mix[i].v + "%</span>" +
+          "</div>" +
+          '<div class="bar"><i style="width:' + mix[i].v + '%"></i></div>' +
+        "</div>";
+    }
+    h += '<p class="tiny muted" style="margin:0">Falar é o que menos aparece e o que mais vale ponto. Fica a dica.</p>';
+    h += "</div></div>";
+
+    h += '<div class="group"><p class="sec-label">Conquistas</p><div class="badges">';
+    for (var j = 0; j < conq.length; j++) {
+      h +=
+        '<div class="badge" data-locked="' + (conq[j].ok ? 0 : 1) + '">' +
+          '<span class="badge-n">' + esc(conq[j].n) + "</span>" +
+          '<span class="badge-d">' + esc(conq[j].d) + "</span>" +
+        "</div>";
+    }
+    h += "</div></div>";
+
+    h +=
+      '<div class="card">' +
+        '<p class="sec-label">Lembrete</p>' +
+        '<div style="display:flex;align-items:center;gap:11px;justify-content:space-between">' +
+          '<span class="tiny">Cutucada às 20h se você não marcou nada</span>' +
+          '<button class="btn ' + (S.lembrete ? "" : "btn-ghost") + '" type="button" data-toggle="lembrete">' +
+            (S.lembrete ? "Ligado" : "Desligado") + "</button>" +
+        "</div>" +
+        '<p class="tiny muted" style="margin:0">No iPhone só funciona se você adicionar o app à tela de início.</p>' +
+      "</div>";
+
+    return h;
+  }
+
+  /* ---------------- telas do professor ---------------- */
+
+  function telaPainel() {
+    var lista_sumidos = sumidos();
+    var ativosHoje = S.alunos.filter(function (s) { return s.sumido === 0; }).length;
+    var emRitmo = noRitmo().length;
+
+    var h = "";
+
+    h += '<div class="group"><p class="sec-label">Precisa de você</p>';
+    for (var i = 0; i < lista_sumidos.length; i++) {
+      var s = lista_sumidos[i];
+      h +=
+        '<div class="alert">' +
+          '<div class="alert-days">' + s.sumido + "<span>DIAS</span></div>" +
+          '<div class="alert-mid">' +
+            '<div class="nick">' + esc(s.real) + "</div>" +
+            '<div class="tiny muted">' + esc(s.nick) + " · sequência zerada · " + s.pts + " pts</div>" +
+          "</div>" +
+          '<button class="btn btn-ghost" type="button" data-cutucar="' + esc(s.nick) + '">Chamar</button>' +
+        "</div>";
+    }
+    h += '<p class="tiny muted" style="margin:0">Numa temporada de ' + S.season.total +
+         " dias, sumir 2 já é quase um terço dela. Uma mensagem agora ainda recupera.</p></div>";
+
+    h +=
+      '<div class="stats">' +
+        '<div class="stat"><span class="num">' + ativosHoje + " / " + S.alunos.length + "</span><small>marcaram hoje</small></div>" +
+        '<div class="stat"><span class="num">' + emRitmo + "</span><small>no ritmo da meta</small></div>" +
+        '<div class="stat"><span class="num">' + fila().length + "</span><small>esperando sua reação</small></div>" +
+        '<div class="stat"><span class="num">' + S.season.day + " / " + S.season.total + "</span><small>dia da temporada</small></div>" +
+      "</div>";
+
+    var lista = ordenados();
+    h += '<div class="group"><p class="sec-label">A turma inteira</p>';
+    for (var j = 0; j < lista.length; j++) {
+      var a = lista[j];
+      h +=
+        '<div class="srow">' +
+          '<span class="pos">' + (j + 1) + "</span>" +
+          '<div class="srow-mid">' +
+            '<span class="nick">' + esc(a.real) + ' <span class="muted" style="font-weight:400">· ' + esc(a.nick) + "</span></span>" +
+            weekDots(a.week) +
+          "</div>" +
+          '<div class="rank-pts"><span class="num">' + a.pts + "</span><small>" + a.dias + " DIAS</small></div>" +
+        "</div>";
+    }
+    h += "</div>";
+
+    return h;
+  }
+
+  function telaTemporada() {
+    var h = "";
+
+    h +=
+      '<div class="card">' +
+        '<p class="sec-label">Temporada em andamento</p>' +
+        '<h3 style="font-family:var(--f-display);font-size:20px;margin:0;font-weight:600">' + esc(S.season.name) + "</h3>" +
+        '<div class="bar"><i style="width:' + (S.season.day / S.season.total) * 100 + '%"></i></div>' +
+        '<p class="tiny muted" style="margin:0">Dia ' + S.season.day + " de " + S.season.total +
+          " · meta de " + S.season.meta + " dias · encerra em " + (S.season.total - S.season.day) + " dias</p>" +
+        '<p class="tiny" style="margin:0"><strong>Prêmio:</strong> ' + esc(S.season.premio) + "</p>" +
+      "</div>";
+
+    h +=
+      '<div class="card">' +
+        '<p class="sec-label">Desafio da semana</p>' +
+        '<div class="field">' +
+          '<textarea id="weekly-in" rows="2">' + esc(S.weekly) + "</textarea>" +
+        "</div>" +
+        '<button class="btn" type="button" data-save="weekly">Publicar pra turma</button>' +
+        '<p class="tiny muted" style="margin:0">Aparece na tela inicial de todo mundo até domingo.</p>' +
+      "</div>";
+
+    h +=
+      '<div class="card">' +
+        '<p class="sec-label">Pontuação por atividade</p>' +
+        '<div class="group">';
+    for (var i = 0; i < ACTS.length; i++) {
+      h +=
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px" class="tiny">' +
+          "<span>" + esc(ACTS[i].name) + '</span><span class="num" style="color:var(--accent)">' + ACTS[i].pts + "</span>" +
+        "</div>";
+    }
+    h += "</div>" +
+        '<p class="tiny muted" style="margin:0">Teto de ' + S.cap + " check-ins por dia. Editável quando a gente construir de verdade.</p>" +
+      "</div>";
+
+    h +=
+      '<div class="card">' +
+        '<p class="sec-label">Próxima temporada</p>' +
+        '<div class="field"><label for="np">Nome</label><input id="np" type="text" value="Semana 2" /></div>' +
+        '<div class="field"><label for="nd">Duração em dias</label><input id="nd" type="text" value="7" /></div>' +
+        '<div class="field"><label for="nm">Meta de dias com check-in</label><input id="nm" type="text" value="5" /></div>' +
+        '<button class="btn btn-ghost" type="button" data-toast="A próxima temporada começa sozinha quando esta acabar.">Agendar</button>' +
+      "</div>";
+
+    return h;
+  }
+
+  function telaAlunos() {
+    var h = "";
+
+    h +=
+      '<div class="card">' +
+        '<p class="sec-label">Código de entrada</p>' +
+        '<span class="code">' + esc(S.codigo) + "</span>" +
+        '<p class="tiny muted" style="margin:0">O aluno abre o link, digita esse código, escolhe um apelido e está dentro. Sem senha, sem e-mail.</p>' +
+        '<button class="btn btn-ghost" type="button" data-toast="Link e código copiados.">Copiar link + código</button>' +
+      "</div>";
+
+    h += '<div class="group"><p class="sec-label">' + S.alunos.length + " alunos</p>";
+    for (var i = 0; i < S.alunos.length; i++) {
+      var a = S.alunos[i];
+      h +=
+        '<div class="srow">' +
+          '<div class="srow-mid">' +
+            '<span class="nick">' + esc(a.real) + "</span>" +
+            '<span class="tiny muted">aparece como <strong>' + esc(a.nick) + "</strong> pros outros</span>" +
+          "</div>" +
+          '<div class="rank-pts"><span class="num">' + a.streak + "</span><small>SEQUÊNCIA</small></div>" +
+        "</div>";
+    }
+    h += "</div>";
+
+    h +=
+      '<p class="tiny muted" style="margin:0">Só você vê os nomes reais. No ranking e no feed, todo mundo é apelido — ' +
+      "como eles não se conhecem, isso tira o constrangimento de ficar em último.</p>";
+
+    return h;
+  }
+
+  /* ---------------- montagem ---------------- */
+
+  var TABS = {
+    aluno: [
+      { id: "hoje",    label: "Hoje",     title: function () { return S.season.name; },  sub: function () { return "Dia " + S.season.day + " de " + S.season.total; }, view: telaHoje },
+      { id: "feed",    label: "Ideias",   title: function () { return "Ideias da turma"; }, sub: function () { return "roube o que servir"; },                          view: telaIdeias },
+      { id: "ranking", label: "Ranking",  title: function () { return "Ranking"; },       sub: function () { return S.season.name; },                                   view: telaRanking },
+      { id: "perfil",  label: "Perfil",   title: function () { return "Seu progresso"; }, sub: function () { return "apelido: " + S.me; },                              view: telaPerfil }
+    ],
+    prof: [
+      { id: "painel",    label: "Painel",    title: function () { return "Painel"; },            sub: function () { return S.season.name; },                     view: telaPainel },
+      { id: "feed",      label: "Fila",      title: function () { return "Fila do dia"; },       sub: function () { return fila().length + " esperando você"; },  view: telaFila },
+      { id: "temporada", label: "Temporada", title: function () { return "Temporada"; },         sub: function () { return "regras e desafios"; },                view: telaTemporada },
+      { id: "alunos",    label: "Alunos",    title: function () { return "Alunos"; },            sub: function () { return S.alunos.length + " cadastrados"; },   view: telaAlunos }
+    ]
+  };
+
+  function tabAtual() {
+    var lista = TABS[S.role];
+    for (var i = 0; i < lista.length; i++) if (lista[i].id === S.tab) return lista[i];
+    return lista[0];
+  }
+
+  function render() {
+    var lista = TABS[S.role];
+    var t = tabAtual();
+    S.tab = t.id;
+
+    $("bar-title").textContent = t.title();
+    $("bar-sub").textContent = t.sub();
+    $("bar-user").textContent = S.role === "aluno" ? S.me : "Prof. Sam";
+
+    $("screen").innerHTML = t.view();
+    $("screen").scrollTop = 0;
+
+    var tb = "";
+    for (var i = 0; i < lista.length; i++) {
+      tb += '<button type="button" data-tab="' + lista[i].id + '" aria-current="' +
+            (lista[i].id === S.tab) + '">' + lista[i].label + "</button>";
+    }
+    $("tabbar").innerHTML = tb;
+  }
+
+  var toastTimer;
+  function toast(msg) {
+    var el = $("toast");
+    el.textContent = msg;
+    el.setAttribute("data-open", "1");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.removeAttribute("data-open"); }, 2600);
+  }
+
+  /* ---------------- folha de check-in ---------------- */
+
+  var pendente = null;
+
+  function abrirSheet(id, hint) {
+    var a = act(id);
+    pendente = id;
+    $("sheet-pts").textContent = "+" + a.pts;
+    $("sheet-title").textContent = a.name;
+    $("sheet-note").value = "";
+    $("sheet-note").placeholder = hint
+      ? "inspirado em: " + hint
+      : "ex: 30 min de Anki, deck de phrasal verbs";
+    $("sheet").setAttribute("data-open", "1");
+    $("scrim").setAttribute("data-open", "1");
+    setTimeout(function () {
+      var n = $("sheet-note");
+      n.focus();
+      n.setSelectionRange(n.value.length, n.value.length);
+    }, 180);
+  }
+
+  function fecharSheet() {
+    pendente = null;
+    $("sheet").removeAttribute("data-open");
+    $("scrim").removeAttribute("data-open");
+  }
+
+  function confirmar() {
+    if (!pendente) return;
+    var a = act(pendente);
+    var nota = $("sheet-note").value.trim() || "Marcado sem comentário.";
+
+    if (S.role === "prof") {
+      S.feed.unshift({ id: nextId++, nick: "Prof. Sam", isProf: true, act: pendente, note: nota,
+                       when: "agora", r: {}, mine: {}, prof: null, profReact: null, seen: true });
+      fecharSheet();
+      render();
+      toast("Publicado no feed da turma.");
+      return;
+    }
+
+    S.hoje.push({ act: pendente, note: nota });
+    S.feed.unshift({ id: nextId++, nick: S.me, act: pendente, note: nota, when: "agora",
+                     r: {}, mine: {}, prof: null, profReact: null, seen: false });
+
+    var eu = aluno(S.me);
+    eu.pts += a.pts;
+    if (S.hoje.length === 1) { S.meDias += 1; S.meStreak += 1; eu.dias += 1; eu.streak += 1; }
+
+    fecharSheet();
+    render();
+    toast("Marcado. +" + a.pts + " pontos · sequência de " + S.meStreak + " dias");
+  }
+
+  /* ---------------- eventos ---------------- */
+
+  $("roles").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-role]");
+    if (!b) return;
+    S.role = b.getAttribute("data-role");
+    S.tab = TABS[S.role][0].id;
+    var all = this.querySelectorAll("button");
+    for (var i = 0; i < all.length; i++) {
+      all[i].setAttribute("aria-selected", all[i] === b ? "true" : "false");
+    }
+    render();
+  });
+
+  $("tabbar").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-tab]");
+    if (!b) return;
+    S.tab = b.getAttribute("data-tab");
+    render();
+  });
+
+  $("screen").addEventListener("click", function (e) {
+    var el;
+
+    if ((el = e.target.closest("button[data-check]"))) {
+      abrirSheet(el.getAttribute("data-check"));
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-profcheck]"))) {
+      abrirSheet(el.getAttribute("data-profcheck"));
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-also]"))) {
+      if (S.hoje.length >= S.cap) { toast("Você já usou seus " + S.cap + " check-ins de hoje."); return; }
+      var aid = Number(el.getAttribute("data-also"));
+      for (var k = 0; k < S.feed.length; k++) {
+        if (S.feed[k].id === aid) abrirSheet(S.feed[k].act, S.feed[k].note);
+      }
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-q]"))) {
+      var qid = Number(el.getAttribute("data-q"));
+      var qem = el.getAttribute("data-emoji");
+      for (var q = 0; q < S.feed.length; q++) {
+        if (S.feed[q].id !== qid) continue;
+        S.feed[q].r[qem] = (S.feed[q].r[qem] || 0) + 1;
+        S.feed[q].profReact = qem;
+        S.feed[q].seen = true;
+      }
+      render();
+      toast("Reagiu. " + fila().length + " restando na fila.");
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-skip]"))) {
+      var kid = Number(el.getAttribute("data-skip"));
+      for (var m = 0; m < S.feed.length; m++) if (S.feed[m].id === kid) S.feed[m].seen = true;
+      render();
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-react]"))) {
+      var pid = Number(el.getAttribute("data-react"));
+      var emoji = el.getAttribute("data-emoji");
+      for (var i = 0; i < S.feed.length; i++) {
+        if (S.feed[i].id !== pid) continue;
+        var p = S.feed[i];
+        if (p.mine[emoji]) {
+          delete p.mine[emoji];
+          p.r[emoji] = Math.max(0, (p.r[emoji] || 1) - 1);
+          if (!p.r[emoji]) delete p.r[emoji];
+        } else {
+          p.mine[emoji] = true;
+          p.r[emoji] = (p.r[emoji] || 0) + 1;
+        }
+      }
+      render();
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-send]"))) {
+      var sid = Number(el.getAttribute("data-send"));
+      var input = $("screen").querySelector('input[data-say="' + sid + '"]');
+      var txt = input && input.value.trim();
+      if (!txt) { toast("Escreva alguma coisa primeiro."); return; }
+      for (var j = 0; j < S.feed.length; j++) {
+        if (S.feed[j].id !== sid) continue;
+        S.feed[j].prof = txt;
+        S.feed[j].seen = true;
+      }
+      render();
+      toast("Comentário publicado.");
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-cutucar]"))) {
+      toast("Abriria o WhatsApp de " + el.getAttribute("data-cutucar") + " com a mensagem pronta.");
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-save]"))) {
+      var ta = $("weekly-in");
+      if (ta && ta.value.trim()) S.weekly = ta.value.trim();
+      render();
+      toast("Desafio da semana publicado.");
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-toggle]"))) {
+      S.lembrete = !S.lembrete;
+      render();
+      return;
+    }
+
+    if ((el = e.target.closest("button[data-toast]"))) {
+      toast(el.getAttribute("data-toast"));
+      return;
+    }
+  });
+
+  $("sheet-ok").addEventListener("click", confirmar);
+  $("sheet-cancel").addEventListener("click", fecharSheet);
+  $("scrim").addEventListener("click", fecharSheet);
+  $("sheet-note").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") confirmar();
+    if (e.key === "Escape") fecharSheet();
+  });
+
+  render();
+})();
+</script>
