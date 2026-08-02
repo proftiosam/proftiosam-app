@@ -15,7 +15,7 @@ export const TZ = "America/Sao_Paulo";
 export const ACTIVITIES = [
   { id: "aula", name: "English Class", points: 10 },
   { id: "fala", name: "Falar / conversar", points: 8 },
-  { id: "estudo", name: "Estudo sozinho", points: 6 },
+  { id: "estudo", name: "Do homework", points: 6 },
   { id: "leitura", name: "Leitura", points: 4 },
   { id: "jogo", name: "Jogo em inglês", points: 3 },
   { id: "podcast", name: "Podcast", points: 3 },

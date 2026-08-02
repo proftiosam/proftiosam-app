@@ -1,4 +1,5 @@
-﻿import { sair } from "../../actions";
+﻿import { headers } from "next/headers";
+import { sair } from "../../actions";
 import { listStudents } from "@/lib/queries";
 import { requireTeacher } from "@/lib/session";
 
@@ -6,6 +7,13 @@ export default async function AlunosPage() {
   await requireTeacher();
   const alunos = await listStudents();
   const codigo = process.env.JOIN_CODE ?? "ING-TESTE";
+
+  // Monta o convite com o domínio pelo qual você chegou aqui, para o link
+  // continuar certo quando o app sair do .vercel.app e virar app.proftiosam.com.
+  const cabecalhos = await headers();
+  const host = cabecalhos.get("host") ?? "app.proftiosam.com";
+  const esquema = host.startsWith("localhost") ? "http" : "https";
+  const convite = `${esquema}://${host}/entrar?c=${encodeURIComponent(codigo)}`;
 
   return (
     <>
@@ -19,11 +27,26 @@ export default async function AlunosPage() {
 
       <main className="screen">
         <div className="card">
-          <p className="sec-label">Código de entrada</p>
-          <span className="code">{codigo}</span>
+          <p className="sec-label">Link de convite</p>
+          <p
+            style={{
+              margin: 0,
+              fontFamily: "var(--f-data)",
+              fontSize: 13,
+              wordBreak: "break-all",
+              color: "var(--accent)",
+              fontWeight: 600,
+            }}
+          >
+            {convite}
+          </p>
           <p className="tiny muted" style={{ margin: 0 }}>
-            O aluno abre o link, digita esse código, escolhe um apelido e está dentro. Sem senha,
-            sem e-mail.
+            Mande este endereço pro aluno. O código já vai dentro dele — o aluno só escolhe um
+            apelido e está dentro. Sem senha, sem e-mail, sem código pra digitar.
+          </p>
+          <p className="tiny muted" style={{ margin: 0 }}>
+            Quem abrir o endereço sem o link precisa do código <strong>{codigo}</strong>. É o que
+            impede um estranho de entrar e escolher o apelido de um aluno seu.
           </p>
         </div>
 

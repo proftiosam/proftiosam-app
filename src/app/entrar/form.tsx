@@ -1,11 +1,18 @@
-﻿"use client";
+"use client";
 
 import { useActionState, useState } from "react";
 import { entrarAluno, entrarProfessor, type FormState } from "../actions";
 
 const inicial: FormState = { error: null };
 
-export function EntrarForm() {
+/**
+ * Quando o aluno chega pelo link do professor, o código vem junto e ele só
+ * escolhe um apelido. Digitar código é fricção que não protege de ninguém:
+ * quem tem o link tem o código de qualquer jeito.
+ *
+ * O campo continua existindo para quem abrir o endereço na mão.
+ */
+export function EntrarForm({ codigoDoLink }: { codigoDoLink: string | null }) {
   const [modoProfessor, setModoProfessor] = useState(false);
   const [alunoState, alunoAction, alunoPending] = useActionState(entrarAluno, inicial);
   const [profState, profAction, profPending] = useActionState(entrarProfessor, inicial);
@@ -40,20 +47,26 @@ export function EntrarForm() {
   return (
     <>
       <form action={alunoAction} className="group">
-        <div className="field">
-          <label htmlFor="codigo">Código da turma</label>
-          <input
-            id="codigo"
-            name="codigo"
-            placeholder="ING-TESTE"
-            autoComplete="off"
-            autoCapitalize="characters"
-            required
-          />
-        </div>
+        {codigoDoLink ? (
+          <input type="hidden" name="codigo" value={codigoDoLink} />
+        ) : (
+          <div className="field">
+            <label htmlFor="codigo">Código da turma</label>
+            <input
+              id="codigo"
+              name="codigo"
+              autoComplete="off"
+              autoCapitalize="characters"
+              required
+            />
+            <span className="tiny muted">
+              Está no link que o professor mandou. Se você não tem, peça pra ele.
+            </span>
+          </div>
+        )}
 
         <div className="field">
-          <label htmlFor="apelido">Seu apelido</label>
+          <label htmlFor="apelido">Escolha seu apelido</label>
           <input
             id="apelido"
             name="apelido"
@@ -63,6 +76,7 @@ export function EntrarForm() {
             minLength={3}
             maxLength={24}
             required
+            autoFocus={Boolean(codigoDoLink)}
           />
           <span className="tiny muted">
             É o que os outros vão ver. Não precisa ser seu nome. Se você já entrou antes, use o

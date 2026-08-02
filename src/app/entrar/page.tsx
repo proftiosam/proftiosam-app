@@ -3,7 +3,11 @@ import { activeStudentExists } from "@/lib/queries";
 import { readSession } from "@/lib/session";
 import { EntrarForm } from "./form";
 
-export default async function EntrarPage() {
+export default async function EntrarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ c?: string }>;
+}) {
   const session = await readSession();
 
   if (session?.kind === "teacher") redirect("/prof");
@@ -12,6 +16,15 @@ export default async function EntrarPage() {
   if (session?.kind === "student" && (await activeStudentExists(session.studentId))) {
     redirect("/hoje");
   }
+
+  // O código chega pelo link que o professor manda. Conferir aqui evita
+  // mostrar um formulário "já resolvido" para quem digitou um código errado
+  // na barra de endereço.
+  const { c } = await searchParams;
+  const codigoDoLink =
+    c && c.trim().toUpperCase() === (process.env.JOIN_CODE ?? "").trim().toUpperCase()
+      ? c.trim()
+      : null;
 
   return (
     <main className="enter">
@@ -23,7 +36,7 @@ export default async function EntrarPage() {
         </p>
       </div>
 
-      <EntrarForm />
+      <EntrarForm codigoDoLink={codigoDoLink} />
     </main>
   );
 }
