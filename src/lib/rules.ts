@@ -12,15 +12,22 @@ export const TZ = "America/Sao_Paulo";
 /* Atividades                                                          */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Os nomes ficam em inglês de propósito: são as oito palavras que o aluno lê
+ * todo dia, e ler inglês sem esforço é o próprio objetivo do app.
+ *
+ * O `id` continua em português e nunca muda — é ele que está gravado em cada
+ * check-in do banco. Trocar um nome aqui é seguro; trocar um id não é.
+ */
 export const ACTIVITIES = [
   { id: "aula", name: "English Class", points: 10 },
-  { id: "fala", name: "Falar / conversar", points: 8 },
+  { id: "fala", name: "Speaking", points: 8 },
   { id: "estudo", name: "Do homework", points: 6 },
-  { id: "leitura", name: "Leitura", points: 4 },
-  { id: "jogo", name: "Jogo em inglês", points: 3 },
+  { id: "leitura", name: "Reading", points: 4 },
+  { id: "jogo", name: "Gaming", points: 3 },
   { id: "podcast", name: "Podcast", points: 3 },
-  { id: "serie", name: "Série / filme", points: 3 },
-  { id: "musica", name: "Música", points: 2 },
+  { id: "serie", name: "TV & Movies", points: 3 },
+  { id: "musica", name: "Music", points: 2 },
 ] as const;
 
 export type ActivityId = (typeof ACTIVITIES)[number]["id"];

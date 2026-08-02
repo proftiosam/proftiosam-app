@@ -28,13 +28,17 @@ Toda decisão de produto abaixo sai daí.
 | Atividade | Pontos |
 |---|---|
 | English Class | 10 |
-| Falar / conversar | 8 |
-| Estudo sozinho | 6 |
-| Leitura | 4 |
-| Jogo em inglês | 3 |
+| Speaking | 8 |
+| Do homework | 6 |
+| Reading | 4 |
+| Gaming | 3 |
 | Podcast | 3 |
-| Série / filme | 3 |
-| Música | 2 |
+| TV & Movies | 3 |
+| Music | 2 |
+
+Os nomes ficam em inglês; o resto da interface, em português. O `id` de cada
+atividade continua em português e **nunca muda** — é ele que está gravado em
+cada linha de `checkins`.
 
 - **Teto de 3 check-ins por dia.** Sem ele o aluno marca música + série + podcast
   e sobe no ranking sem estudar.
